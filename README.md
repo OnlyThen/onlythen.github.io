@@ -1,20 +1,20 @@
-## Welcome to Octopus's Blog
-这是我的博客的 `V0.0.1` 版本。因为什么都还不会，只好凑合一下。。。
+## Welcome to :octopus:'s Blog
+这是我的博客的 `V0.0.1` 版本。因为什么都还不会 :joy:，只好凑合一下。。。
 
-### 先写自己创建个人博客的原因 ：）
+### 先写自己创建个人博客的原因 :blush:
 
-很多人喜欢经营自己的思考，有些是在QQ空间，有些人
+很多人喜欢经营自己的思考，有些是在QQ空间，有些人是在朋友圈。
+我不喜欢在这两者中发什么，觉得自己很多的想法、思考应该放到博客上，分享给<font color=#0099ff>Internet</font>
 
 ```markdown
-Syntax highlighted code block
+博客会包括什么
 
 # Header 1
 ## Header 2
 ### Header 3
 
 - Bulleted
-- List
-
+- Li
 1. Numbered
 2. List
 
