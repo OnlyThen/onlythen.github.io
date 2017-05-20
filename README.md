@@ -1,12 +1,9 @@
 ## Welcome to Octopus's Blog
+这是我的博客的 `V0.0.1` 版本。因为什么都还不会，只好凑合一下。。。
 
-You can use the [editor on GitHub](https://github.com/OnlyThen/onlythen.github.io/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+### 先写自己创建个人博客的原因 ：）
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+很多人喜欢经营自己的思考，有些是在QQ空间，有些人
 
 ```markdown
 Syntax highlighted code block
@@ -35,3 +32,4 @@ Your Pages site will use the layout and styles from the Jekyll theme you have se
 ### Support or Contact
 
 Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+
