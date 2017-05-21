@@ -1,5 +1,5 @@
 ## Welcome to octopus's Blog
-![my photo](http://oqa5o9dlv.bkt.clouddn.com/IMG_0133.jpg)
+![my photo]()
 这是我的博客的 `V0.0.1` 版本。因为什么都还不会，只好凑合一下。。。
 
 ### 先写自己创建个人博客的原因 :)
