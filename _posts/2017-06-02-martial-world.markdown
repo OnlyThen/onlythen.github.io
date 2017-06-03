@@ -5,6 +5,7 @@ subtitle:   "从武侠看社会"
 date:       2017-06-02
 author:     "XiaoYu"
 header-img: "img/post-martial.jpg"
+catalog:    true
 tags:
     - Books
     - 武侠
