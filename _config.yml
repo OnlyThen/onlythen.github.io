@@ -92,34 +92,16 @@ friends: [
         title: "代码时间",
         href: "http://codetimecn.com/"
     },{
-        title: "乱序",
-        href: "http://mida.re/"
-    },{
-        title: "前端外刊评论",
-        href: "http://qianduan.guru/"
-    },{
         title: "Swift 3",
         href: "https://www.cnswift.org/"
     },{
         title: "UX Coffee",
         href: "http://uxcoffee.co"
     },{
-        title: "Ebn's Blog",
-        href: "http://ebnbin.com/"
-    },{
-        title: "SmdCn's Blog",
-        href: "http://blog.smdcn.net"
-    },{
         title: "喵神的博客",
         href: "https://onevcat.com/"
     },{
-        title: "DHong Say",
-        href: "http://dhong.co"
-    },{
         title: "Bison的博客",
         href: "http://allluckly.cn/"
-    },{
-        title: "前端神盾局",
-        href: "http://wepiaofei.github.io/blog/"
     }
 ]
