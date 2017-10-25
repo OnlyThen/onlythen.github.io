@@ -1,14 +1,14 @@
 ---
 layout:     post
-title:      "剑花、烟雨、江南"
-subtitle:   "从武侠看社会"
+title:      "系统环境备忘"
+subtitle:   "我的电脑有什么"
 date:       2017-10-24
 author:     "XiaoYu"
-header-img: "img/post-martial.jpg"
+header-img: "img/post-system-environment.jpg"
 catalog:    true
 tags:
-    - Books
-    - 武侠
+    - Code
+    - macOS
 ---
 
 > 最近开始尝试了人脸识别的`demo`，用了一些`module`，又在电脑上配置了很多环境，遇到很多`error`，想着做个备忘，以后好参考。
