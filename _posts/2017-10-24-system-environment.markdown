@@ -67,6 +67,10 @@ brew link --force opencv3
 
 我这边的问题是之前安装过`opencv`，它和我系统的python2.7软链接了，所以我又在命令行进入python3.6.1（十分麻烦），手动链接成功，最后当电脑可以跑起来时，所有的努力还是值得的。
 
+## Face-recognition
+
+查看该作者写的文章时发现他提到了一个开源人脸识别库[OpenFace](https://github.com/cmusatyalab/openface)，于是我便尝试安装了，过程很冗长，参考简书上别人写的[步骤](http://www.jianshu.com/p/f5553d634b77)，因为这个库的网站打不开。
+
 ## 最后
 
 Mac在软件开发上相比于Windows具有天然的优势，明年应该还会购买一台iMac。
