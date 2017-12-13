@@ -70,7 +70,7 @@ kramdown:
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "看看书，写写字<br>做想做的、喜欢做的事"
-sidebar-avatar: /img/avatar-hux.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /img/xiaoyu.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
