@@ -4,7 +4,7 @@ title:      "我是如何利用SQLite来存储彩虹表的"
 subtitle:   "代码笔记第五话"
 date:       2018-04-04
 author:     "XiaoYu"
-header-img: "img/post-sqlite.jpg"
+header-img: "img/post-sqlite.jpeg"
 tags:
     - 数据库
     - 经验
