@@ -25,7 +25,7 @@ tags:
 
 1948年，香农在贝尔实验室发表的论文《A Mathematical Theory of Communication》一举成为现代信息论研究的开端，原因在于他提出了信息熵的概念，对消息的不确定性进行了衡量。熵指的是*平均自信息量*，也就是集中某个事件出现的平均可能性。
 *Definition*
-![](http://latex.codecogs.com/gif.latex?\H=-\\sum_{i}P_i\\times log{P_i})
+![](http://www.forkosh.com/mathtex.cgi? \Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a})
 **香农居然还是我讨厌的《数字电路》的理论基础提出者**，但我还是很钦佩他的，他的重视实践、追求完美、永不满足的科学精神是值得我学习的，另外，他的博士论文是关于人类遗传学的，题目是《An Algebra for Theoretical Genetics》，这也表明天才总是可以将各种领域联系到一起，他还是美国哲学学会会员，我也一直认为数理科学的最高处就是哲学，这也是我努力的方向。
 
 # 语言、文字
