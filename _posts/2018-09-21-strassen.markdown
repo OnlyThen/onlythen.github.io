@@ -1,0 +1,109 @@
+---
+layout:     post
+title:      "快速矩阵乘法"
+subtitle:   "代码笔记第八话"
+date:       2018-09-21
+author:     "XiaoYu"
+header-img: "img/post-strassen.jpeg"
+tags:
+    - Mathematics
+    - Algorithm
+    - Code
+---
+
+> 最近在看算法导论时发现了一个有意思的算法：**strassen**矩阵乘法，于是研究了一番。
+
+## 矩阵的自然乘法
+
+在线性代数中学习了矩阵，了解了矩阵乘法的原理，那么要编程时自然按照这个标准原理来实现，即实用三个`for`循环，前矩阵的行与后矩阵的列按位相乘后相加得到一个元素，这种方法编写起来很简单，也很自然，但它的计算复杂度显然是`O(n^3)`，那么当矩阵较大时，比如超过了`1000`，那么计算代价的增加是十分夸张的，鉴于此，有人设计了一个更快的算法。
+自然乘法：
+```
+n = A.rows
+let C be a new n*n matrix
+for i = 1 to n
+    for j = 1 to n
+        c[i][j] = 0
+        for k = 1 to n
+            c[i][j] += a[i][k]*b[k][j]
+return C
+```
+
+---
+
+
+## 矩阵分割
+
+但我们计算`C=A*B`时，我们先将矩阵`A`和`B`填充为行列相同且为`n`的新的矩阵（n为2 的幂），填充的数据为0，接下来我们将矩阵A和B划分为4个相同大小的子矩阵，即行列均为n/2，如下：
+![公式一](http://oqa5o9dlv.bkt.clouddn.com/strassen1.jpeg)
+即：
+![公式二](http://oqa5o9dlv.bkt.clouddn.com/strassen2.jpeg)
+那么：
+![公式三](http://oqa5o9dlv.bkt.clouddn.com/strassen3.jpeg)
+我们可以看出这种方法需要进行递归，假设进行一次矩阵乘法需要的时间为`T(n)`，从上图可以看出进行了8次大小为n/2的矩阵乘法，以及4次矩阵加法，每个矩阵包含`4n^2`个元素，因此加法计算量为`O(n^2)`，那么：
+![公式四](http://oqa5o9dlv.bkt.clouddn.com/strassen4.jpeg)
+这个公式的解为`O(n^3)`，这种方法实际上与自然乘法没有什么区别，只是实现方式不同而已。
+
+---
+
+## strassen算法
+
+**strassen**算法的核心在于将上述的乘法次数降低到7，不要小看只减少了一次，在n较大时带来的计算量的减少是很可观的，算法的步骤如下：
+
+1. 将矩阵A、B、C分解为n/2的子矩阵，这一步花费`O(1)`的计算量；
+2. 创建10个n/2的矩阵S1...S10，S为A、B子矩阵的和或差，这一步的计算量为`O(n^2)`；
+3. 递归计算7个矩阵P1...P7，每个P都是两个矩阵的乘；
+4. 通过P矩阵的加减组合得到矩阵C。
+
+这样我们可以发现只进行了7次乘法，那么：
+![公式五](http://oqa5o9dlv.bkt.clouddn.com/strassen5.jpeg)
+这样我们可以求出解为`O(n^lg7)`。
+
+---
+
+## 程序部分
+
+该算法有两个细节信息：
+1. S矩阵的定义
+2. P矩阵的定义
+![S矩阵1](http://oqa5o9dlv.bkt.clouddn.com/strassen6.jpeg)
+![S矩阵2](http://oqa5o9dlv.bkt.clouddn.com/strassen7.jpeg)
+![P矩阵](http://oqa5o9dlv.bkt.clouddn.com/strassen8.jpeg)
+
+而在实现上的一个重点问题是如何分解矩阵，以往我遇到矩阵问题时都会自然地使用二维数组来保存数据，但在C语言中这样很不方便，于是我根据[GitHub](https://github.com/pmkravets/strassen-winograd)上一个程序进行了修改。
+
+实现细节：
+1. 定义一个结构体，结构体内有一个`double`类型的指针，用来指向矩阵的数据，同时包含五个`uint`型的变量，分别保存矩阵的行数、列数，偏移量、停滞量、跳过量，后面三个变量用来区分矩阵的子矩阵，这样可以避免数据的拷贝。
+2. 通过递归计算乘积，当矩阵大小为2*2时，使用自然乘法计算结果。
+
+---
+
+## 算法思考
+
+自从了解了时间空间折中算法之后，我发现**strassen**也是属于这类算法，因为我们不可能保持空间需求不变的情况下来减少时间开销，而自然乘法则是空间开销最小的一种。
+
+另外Strassen算法需要对不规则矩阵进行填充，我也学到了如何找到紧随某个数后的2次幂的方法：
+```
+int nextPowerOfTwo(int number) {
+    
+    number -= 1;
+    number |= number >> 1;
+    number |= number >> 2;
+    number |= number >> 4;
+    number |= number >> 8;
+    number |= number >> 16;
+    number += 1;
+    
+    return number;
+}
+
+```
+如果超过32位的数字，那么还要进行右移32位的操作。
+---
+
+## 写在最后
+
+递归方法确实很方便。
+
+
+
+
