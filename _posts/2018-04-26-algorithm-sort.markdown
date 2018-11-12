@@ -17,7 +17,7 @@ tags:
 ## 导论
 
 排序实际上就是对一系列数据集的重新排列的操作，且在计算机内都是按照数值的大小来递增或递减排列，为了对数据执行更快的查询，有必要对数据进行排序。在网上看到一人的总结，觉得分的很好，于是采用他的分类方式:<https://www.cnblogs.com/onepixel/articles/7674659.html>。即分为非线性时间比较类排序和线性时间非比较类排序，下图是比较。
-![](http://oqa5o9dlv.bkt.clouddn.com/sort.jpeg)
+![](/img/in_post/sort.jpeg)
 
 ---
 
@@ -107,7 +107,7 @@ void shellSort(int arr[], int length) {
 
 同样，使用了辅助空间来保存要比较的数，空间复杂度是O(1);下面主要分析hibbard增量的最坏时间复杂度。
 hibbard序列是在1963年提出，文献为《An Empirical Study of Minimal Storage Sorting》，其时间复杂度由Papernov 和Stasevich在1965年证明，论文内容是不认识的语言，其主要内容如下
-![](http://oqa5o9dlv.bkt.clouddn.com/proof.jpeg)
+![](/img/in_post/proof.jpeg)
 而在论文On the average-case complexity of Shellsort中给出了通用分析。
 
 ### 稳定性分析
@@ -144,7 +144,7 @@ void selectSort(int A[], int n) {
 ### 复杂度分析
 
 第一轮找出最大值需要(n-1)次比较，第二轮需要(n-2)次比较，因此总的比较数目为
-![](http://www.forkosh.com/mathtex.cgi? 1+2+...+(n-1)=\frac12(n^2-n))
+![](http://latex.codecogs.com/gif.latex?\1+2+...+(n-1)=\frac12(n^2-n))
 同样只需要取一个数据，那么空间复杂度为O(1)。
 
 ### 稳定性分析

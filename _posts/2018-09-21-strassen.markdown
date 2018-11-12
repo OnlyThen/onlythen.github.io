@@ -34,13 +34,13 @@ return C
 ## 矩阵分割
 
 但我们计算`C=A*B`时，我们先将矩阵`A`和`B`填充为行列相同且为`n`的新的矩阵（n为2 的幂），填充的数据为0，接下来我们将矩阵A和B划分为4个相同大小的子矩阵，即行列均为n/2，如下：
-![公式一](http://oqa5o9dlv.bkt.clouddn.com/strassen1.jpeg)
+![公式一](/img/in_post/strassen1.jpeg)
 即：
-![公式二](http://oqa5o9dlv.bkt.clouddn.com/strassen2.jpeg)
+![公式二](/img/in_post/strassen2.jpeg)
 那么：
-![公式三](http://oqa5o9dlv.bkt.clouddn.com/strassen3.jpeg)
+![公式三](/img/in_post/strassen3.jpeg)
 我们可以看出这种方法需要进行递归，假设进行一次矩阵乘法需要的时间为`T(n)`，从上图可以看出进行了8次大小为n/2的矩阵乘法，以及4次矩阵加法，每个矩阵包含`4n^2`个元素，因此加法计算量为`O(n^2)`，那么：
-![公式四](http://oqa5o9dlv.bkt.clouddn.com/strassen4.jpeg)
+![公式四](/img/in_post/strassen4.jpeg)
 这个公式的解为`O(n^3)`，这种方法实际上与自然乘法没有什么区别，只是实现方式不同而已。
 
 ---
@@ -55,7 +55,7 @@ return C
 4. 通过P矩阵的加减组合得到矩阵C。
 
 这样我们可以发现只进行了7次乘法，那么：
-![公式五](http://oqa5o9dlv.bkt.clouddn.com/strassen5.jpeg)
+![公式五](/img/in_post/strassen5.jpeg)
 这样我们可以求出解为`O(n^lg7)`。
 
 ---
@@ -67,9 +67,9 @@ return C
 1. S矩阵的定义
 2. P矩阵的定义
 
-![S矩阵1](http://oqa5o9dlv.bkt.clouddn.com/strassen6.jpeg)
-![S矩阵2](http://oqa5o9dlv.bkt.clouddn.com/strassen7.jpeg)
-![P矩阵](http://oqa5o9dlv.bkt.clouddn.com/strassen8.jpeg)
+![S矩阵1](/img/in_post/strassen6.jpeg)
+![S矩阵2](/img/in_post/strassen7.jpeg)
+![P矩阵](/img/in_post/strassen8.jpeg)
 
 而在实现上的一个重点问题是如何分解矩阵，以往我遇到矩阵问题时都会自然地使用二维数组来保存数据，但在C语言中这样很不方便，于是我根据[GitHub](https://github.com/pmkravets/strassen-winograd)上一个程序进行了修改。
 
