@@ -21,8 +21,8 @@ tags:
 ## 引言
 TLS协议的主要目标是在两个通信应用之间提供隐私保护和数据完整性。该协议由两层组成：TLS记录协议和TLS握手协议。在最底层，在一些可靠的传输协议之上（如TCP），是TLS记录协议。TLS记录协议提供的安全连接有两个基本特性：
 
-* 连接是私有的。对称加密用于数据加密（例如DES、RC4）。这种对称加密的密钥为每个连接唯⼀生成的，并且基于另一个协议协商的机密信息（如TLS握⼿手协议）。记录协议也可以在没有加密的情况下使⽤。
-* 连接是可靠的。消息传输过程包括使用加密的MAC进行完整性校验。MAC计算使用一些安全的哈希函数（如SHA、MD5）。记录协议同样可以在没有MAC的情况下运行，但这通常仅在另一个协议利用记录协议作为传输工具来协商安全参数的时候才会发生。
+* 连接是私有的。对称加密用于数据加密（例如DES、RC4）。这种对称加密的密钥为每个连接唯⼀生成的，并且基于另一个协议协商的机密信息（如TLS握手协议）。记录协议也可以在没有加密的情况下使⽤。
+* 连接是可靠的。消息传输过程包括使用加密的MAC进行完整性校验。使用一些安全的哈希函数（如SHA、MD5）进行MAC计算。记录协议同样可以在没有MAC的情况下运行，但这通常仅在另一个协议利用记录协议作为传输工具来协商安全参数的时候才会发生。
 
 TLS记录协议⽤于封装各种高级协议。 一个被封装的协议就是TLS握手协议，它允许服务器和客户端彼此认证，并在应⽤用协议发送或接收其第一个数据字节之前协商加密算法和加密密钥。TLS握手协议提供的安全连接有三个基本属性: 
 
@@ -177,12 +177,12 @@ A(i) = HMAC_hash(secret, A(i-1))
 TLS的伪随机函数是通过将私密信息分割成两半，其中一半用`P_MD5`生成数据，另一半⽤`P_SHA-1`生成数据， 然后将这两个扩展函数的输出进行异或。
 
 S1和S2是私密信息的两半，每个都是相同的⻓度。 S1从secret的前半部分采取，S2是从下半部采取的。他们的长度是通过将私密信息的⻓度除以2来得出的; 因此，如果原始secret是奇数个字节长，则S1的最后⼀个字节 将与S2的第⼀个字节相同。 
- 
+
  ```
  L_S = length in bytes of secret;
  L_S1 = L_S2 = ceil(L_S / 2);
  ```
- 
+
 如上所述，secret被分成两半(可能共享一个字节)，S1取第一个长为`L_S1`的字节，S2取最后一个长`L_S2`的字节。 
 
 然后将PRF定义为将两个伪随机流混合在⼀起的结果。 
@@ -210,7 +210,7 @@ TLS连接的读写状态的安全参数通过提供以下值来设置:
 
 批量加密算法
 	⽤于批量加密的算法。 本规范包括该算法的密钥⼤小、该密钥的安全程度、分组加密还是流加密，分组的块⼤小(如果适用)， 以及它是否被认为是可“出⼝”加密算法。 
- 
+
 MAC 算法
 	用于消息验证的算法。本规范包括该算法返回的哈希值的大小。
 	
@@ -226,9 +226,96 @@ MAC 算法
 服务端随机数
 	服务端产生的32字节的值。
 
+这些参数按照描述语言定义如下：
+```
+enum { server, client } ConnectionEnd;
+enum { null, rc4, rc2, des, 3des, des40 } BulkCipherAlgorithm;
+enum { stream, block } CipherType;
+enum { true, false } IsExportable;
+enum { null, md5, sha } MACAlgorithm;
+enum { null(0), (255) } CompressionMethod;
+/* 指定的压缩、批加密以及MAC算法可能需要添加 */
+```
 
+```
+struct {
+	ConnectionEnd          entity;
+	BulkCipherAlgorithm    bulk_cipher_algorithm;
+	CipherType             cipher_type;
+	uint8                  key_size;
+	uint8                  key_material_length;
+  IsExportable           is_exportable;
+  MACAlgorithm           mac_algorithm;
+  uint8                  hash_size
+  CompressionMethod      compression_algorithm;
+  opaque                 master_secret[48];
+	opaque                 client_random[32];
+  opaque                 server_random[32];
+} SecurityParameters;
+```
+记录协议将使用这些安全参数来产生以下六项：
+	客户端 写 MAC密钥 //session key
+	服务端 写 MAC密钥
+	客户端 写 密钥
+	服务端 写 密钥
+	客户端 写 初始向量 （仅用于分组加密）
+	服务端 写 初始向量 （仅用于分组加密）
+	
+客户端的写参数将在服务端收到并处理记录时被服务端使用，反之亦然。使用安全参数生成以上项的算法将在[密钥计算]中描述。一旦安全参数和密钥被设定，连接状态就可以被实例化为当前状态。每次记录的处理都要更新当前状态。每个连接状态包含以下元素：
+
+压缩状态
+	当前压缩算法的状态。
+	
+加密状态
+	当前加密算法的状态。包括该连接的预先设置的密钥。另外，对于运行在CBC模式下的分组加密（TLS唯一指定的模式），它最初包含该连接状态初始向量，并会更新为包含记录处理的最后一块加密或解密的密文，对于流加密，它将包含任何必要的信息，以继续流加密或解密数据。
+
+MAC 密钥
+	正如之前描述的产生的MAC 密钥。
+	
+序列号
+	每个连接状态都包含一个序列号，读写状态的是分开维护的。无论什么时候连接状态设置为活动状态序列号都会设置为0。序列号是`uint64`类型的，不超过`2^64-1`，每次记录后序列号都会增加：特别的，在特定连接下发送的第一条记录应使用序列号0。
+	
 ### 记录层
-#### 分段
+TLS记录层以任意大小的非空块接收高层的未解释的数据。
+
+#### 分片
+记录层将信息块分为携带2^14字节或更小的块的TLS明文记录。Client message boundaries are not preserved in the record layer.(例如，多个相同内容类型的客户端消息会被合并到一个TLS明文记录中，一条消息也可能被分片到多个记录中)
+```
+struct {
+	uint8 major, minor;
+} ProtocolVersion
+```
+
+```
+enum {
+	change_cipher_spec(20), alert(21), handshake(22),
+	application_data(23), (255)
+} Contenttype;
+```
+
+```
+struct {
+	ContentType type;
+	ProtocolVersion version;
+	uint16 length;
+	opaque fragment[TLSPlaintext.length];
+} TLSPlaintext;
+```
+
+type
+	高层协议用来处理 封闭的片段。
+
+version
+	协议部署的版本。本文档描述的是TLS 1.0版本，在这里使用版本{3, 1}，这是有历史原因的：TLS 1.0是在SSL 3.0上面进行较小改动的，因此继承了3.0这个版本号。（见附录A.1）
+	
+length
+	后续TLSPlaintext.fragment 的长度（单位为字节）。长度不超过2^14。
+	
+fragment
+	应用数据。这些数据是透明的，被视为独立的块，由类型字段指定的高层协议处理。
+	
+注意：不同TLS记录层内容类型的数据可能会交错。与其他内容类型相比，应⽤程序数据的传输优先级通常较低。
+
 #### 记录压缩和解压缩
 #### 记录载荷保护
 ##### 空或标准流加密
