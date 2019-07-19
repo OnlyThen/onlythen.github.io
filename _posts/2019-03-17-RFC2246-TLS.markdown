@@ -317,8 +317,56 @@ fragment
 注意：不同TLS记录层内容类型的数据可能会交错。与其他内容类型相比，应⽤程序数据的传输优先级通常较低。
 
 #### 记录压缩和解压缩
+所有的记录都会以当前回话定义的压缩算法进行压缩，而且总会有一个活动的压缩算法，但一开始它被定义为`CompressionMethod.null`。压缩算法将`TLSPlaintext`结构转换为`TLSCompressed`结构。当一个连接状态被激活时压缩函数都会按照默认状态信息初始化。压缩必须是无损的，并且压缩后的内容长度不能增加超过1024字节。如果压缩函数遇到一个`TLSCompressed.fragment`，它将会解压到超过2^14字节的内容，这样会报告一个严重的解压失败错误。
+```
+struct {
+	ContentType type;        /* 与 TLSPlaintext.type 相同 */
+	ProtocolVersion version; /* 与 TLSPlaintext.version 相同 */
+	uint16 length;
+	opaque fragment[TLSCompressed.length];
+} TLSCompressed;
+```
+
+length
+	接下来的`TLSCompressed.fragment` 的长度（以字节为单位）。
+	长度不能超过2^14+1024.
+	
+fragment
+	`TLSPlaintext.fragment`的压缩形式。
+
+注意：`CompressionMethod.null`是一个标识操作，不会有字段被改变。
+
+实现注意：解压函数必须保证消息不回造成内部缓存溢出。
+
 #### 记录载荷保护
+加密和MAC函数将`TLSCompressed`结构转换为`TLSCiphertext`结构。解密函数是相反的操作。记录的消息验证码包含一个序列号，这样可以检测到丢失或额外的重复的消息。
+```
+struct {
+	ContentType type;
+	ProtocolVersion version;
+	uint16 length;
+	select (CipherSpec.cipher_type) {
+		case stream: GenericStreamCipher;
+		case block: GenericBlockCipher;
+	} fragment;
+} TLSCiphertext;
+```
+
+type
+	`type`字段标识`TLSCompressed.type`。
+
+version
+	`version`字段标识`TLSCompressed.version`。
+	
+length
+	接下来的`TLSCiphertext.fragment`的长度（以字节为单位）。
+	长度不超过2^14+2048.
+	
+fragment
+	`TLSCompressed.fragment`的带有MAC的加密形式。
+
 ##### 空或标准流加密
+
 ##### 密文分组链接块加密
 ### 密钥计算
 #### 出口密钥生成示例
