@@ -92,7 +92,7 @@ TLS协议的按优先级排列的目标：
 
 ### 构造类型
 构造类型可以由原始类型创建。每个声明描述一种新的，独特的类型。定义的语法与`C`十分类似。
-```
+```c
 struct {
 	T1 f1;
 	T2 f2;
@@ -113,7 +113,7 @@ struct {
 在RSA签名中，两个哈希值组成一个36字节的结构被签名（一个由SHA产生，一个由MD5产生）。它使用PKCS #1 块 类型0或类型1编码，如PKCS中所述。
 
 在DSS中，SHA产生的20字节的哈希值直接通过数字签名算法，而没有额外的哈希。这将产生两个值，r和s。DSS的签名是一个`opaque`向量，它的内容是DER编码形式：
-```
+```c
 Dss-Sig-Value  ::=  SEQQUENCE  {
      r       INTEGER,
      s       INTEGER
@@ -129,7 +129,7 @@ Dss-Sig-Value  ::=  SEQQUENCE  {
 一个RSA加密的数据以PKCS #1 分组类型2编码，如PKCS中的描述。
 
 在如下的例子中：
-```
+```c
 stream-ciphered struct  {
     uint8 field1;
     uint8 field2;
@@ -141,7 +141,7 @@ stream-ciphered struct  {
 ### 常量
 可以通过为所需要的类型声明符号并赋值来定义常量类型。以下类型不能赋值(`opaque`，可变长向量，含有`opaque`的结构体)。无字段的多元素结构体或向量可以被省略。 
 例如，
-```
+```c
 struct {
 	uint8 f1;
 	uint8 f2;
@@ -160,14 +160,14 @@ HMAC可以与各种不同的哈希算法一起使用。TLS在握手中使用两�
 为了伪随机函数尽可能的安全，它使用两种哈希算法，这样只要有一个足够安全就可以保证安全性。
 
 首先，我们定义一个数据扩展函数，`P_hash(secret, data)`，它使用单个哈希函数将secret和seed扩展为任意数量的输出: 
-```
+```c
 P_hsah(secret, seed) = HMAC_hash(secret, A(1) + seed) +
                        HMAC_hash(secret, A(2) + seed) +
                        HMAC_hash(secret, A(3) + seed) + ...
 ```
 其中`+`指串连。
 `A()`的定义如下：
-```
+```c
 A(0) = seed
 A(i) = HMAC_hash(secret, A(i-1))
 ```
@@ -178,7 +178,7 @@ TLS的伪随机函数是通过将私密信息分割成两半，其中一半用`P
 
 S1和S2是私密信息的两半，每个都是相同的⻓度。 S1从secret的前半部分采取，S2是从下半部采取的。他们的长度是通过将私密信息的⻓度除以2来得出的; 因此，如果原始secret是奇数个字节长，则S1的最后⼀个字节 将与S2的第⼀个字节相同。 
 
- ```
+ ```c
  L_S = length in bytes of secret;
  L_S1 = L_S2 = ceil(L_S / 2);
  ```
@@ -186,7 +186,7 @@ S1和S2是私密信息的两半，每个都是相同的⻓度。 S1从secret的�
 如上所述，secret被分成两半(可能共享一个字节)，S1取第一个长为`L_S1`的字节，S2取最后一个长`L_S2`的字节。 
 
 然后将PRF定义为将两个伪随机流混合在⼀起的结果。 
-```
+```c
 PRF(secret, label, seed) = P_MD5(S1, label+seed) XOR
                            P_SHA-1(S2, label+ seed);
 ```
@@ -227,7 +227,7 @@ MAC 算法
 	服务端产生的32字节的值。
 
 这些参数按照描述语言定义如下：
-```
+```c
 enum { server, client } ConnectionEnd;
 enum { null, rc4, rc2, des, 3des, des40 } BulkCipherAlgorithm;
 enum { stream, block } CipherType;
@@ -237,7 +237,7 @@ enum { null(0), (255) } CompressionMethod;
 /* 指定的压缩、批加密以及MAC算法可能需要添加 */
 ```
 
-```
+```c
 struct {
 	ConnectionEnd          entity;
 	BulkCipherAlgorithm    bulk_cipher_algorithm;
@@ -280,20 +280,20 @@ TLS记录层以任意大小的非空块接收高层的未解释的数据。
 
 #### 分片
 记录层将信息块分为携带2^14字节或更小的块的TLS明文记录。Client message boundaries are not preserved in the record layer.(例如，多个相同内容类型的客户端消息会被合并到一个TLS明文记录中，一条消息也可能被分片到多个记录中)
-```
+```c
 struct {
 	uint8 major, minor;
 } ProtocolVersion
 ```
 
-```
+```c
 enum {
 	change_cipher_spec(20), alert(21), handshake(22),
 	application_data(23), (255)
 } Contenttype;
 ```
 
-```
+```c
 struct {
 	ContentType type;
 	ProtocolVersion version;
@@ -318,7 +318,7 @@ fragment
 
 #### 记录压缩和解压缩
 所有的记录都会以当前回话定义的压缩算法进行压缩，而且总会有一个活动的压缩算法，但一开始它被定义为`CompressionMethod.null`。压缩算法将`TLSPlaintext`结构转换为`TLSCompressed`结构。当一个连接状态被激活时压缩函数都会按照默认状态信息初始化。压缩必须是无损的，并且压缩后的内容长度不能增加超过1024字节。如果压缩函数遇到一个`TLSCompressed.fragment`，它将会解压到超过2^14字节的内容，这样会报告一个严重的解压失败错误。
-```
+```c
 struct {
 	ContentType type;        /* 与 TLSPlaintext.type 相同 */
 	ProtocolVersion version; /* 与 TLSPlaintext.version 相同 */
@@ -339,8 +339,8 @@ fragment
 实现注意：解压函数必须保证消息不回造成内部缓存溢出。
 
 #### 记录载荷保护
-加密和MAC函数将`TLSCompressed`结构转换为`TLSCiphertext`结构。解密函数是相反的操作。记录的消息验证码包含一个序列号，这样可以检测到丢失或额外的重复的消息。
-```
+加密和MAC函数将`TLSCompressed`结构和`TLSCiphertext`结构相互转换。解密函数是相反的操作。记录的消息验证码包含一个序列号，这样可以检测到丢失或额外的重复的消息。
+```c
 struct {
 	ContentType type;
 	ProtocolVersion version;
@@ -366,15 +366,266 @@ fragment
 	`TLSCompressed.fragment`的带有MAC的加密形式。
 
 ##### 空或标准流加密
+流加密（包括`BulkCipherAlgorithm.null` - 见附录A.6）将`TLSCompressed.fragment`结构转换为流`TLSCiphertext.fragment`结构。
+```c
+stream-ciphered struct {
+	opaque content[TLSCompressed.length];
+	opaque MAC[CipherSpec.hash_size];
+} GenericStreamCipher;
+```
+
+MAC的产生如下：
+	```
+	HMAC_hash(MAC_write_secret, seq_num + TLSCompressed.type +
+	              TLSCompressed.version + TLSCompressed.length +
+	              TLSCompressed.fragment);
+	```
+	其中`+`表示串联。
+	
+seq_num
+	该记录的序列号。
+	
+hash
+	由`SecurityParameters.mac_algorithm`指定的哈希算法。
+	
+注意MAC是在加密之前计算的。流加密部分会加密整个块，包括MAC。对于不使用同步向量的流加密算法（如RC4），一条记录尾部的流加密状态仅被简单用于随后的包。如果加密套件是`TLS_NULL_WITH_NULL_NULL`，则加密有标识操作组成（例如，数据未被加密且MAC的长度是0表示没有用到MAC）。`TLSCiphertext.length`等于`TLSCompressed.length`加上`CipherSpec.hash_size`。
 
 ##### 密文分组链接块加密
+对于分组加密算法（RC2，DES等），加密函数和MAC函数将`TLSCompressed.fragment`结构和`TLSCiphertext.fragment`结构互相转换。
+```c
+block-ciphered struct {
+	opaque content[TLSCompressed.length];
+	opaque MAC[CipherSpec.hash_size];
+	uint8 padding[GenericBlockCipher.padding_length];
+	uint8 padding_length;
+} GenericBlockCipher;
+```
+
+MAC的产生如6.2.3.1的描述。
+
+padding
+	填充是为了使明文的长度是加密分组长度的整数倍。填充可以是不超过255字节的任意长度，只要填充后的长度是分组长度的整数倍。使填充长度超过必须添加的长度可以被用来抵御对协议的基于交换信息长度的攻击。填充数据的每个`uint8`空间都写入填充的长度值。
+	
+padding_length
+	填充⻓度应该使得`GenericBlockCipher`结构的总大小是加密块⻓度的倍数。合法值范围从0到255。该⻓度指定排除`padding_length`字段本身的填充字段的长度。
+
+加密的数据长度`TLSCiphertext.length`比`TLSCompressed.length`，`CipherSpec.hash_size`和
+`padding_length`的总和多⼀个字节。
+
+例如：如果分组长度为8字节，内容⻓度`TLSCompressed.length`为61字节，MAC长度为20字节，填充前的长度为82字节。因此，为了使总长度为8字节的整数倍(分组长度)，填充⻓度模8必须等于6。填充⻓度可以为6,14,22等。如果填充长度是必需的最小值，填充将为6字节，每个包含值6。因此，块加密之前的`GenericBlockCipher`的最后8个字节将为xx 06，06 06 06 06 06 06，其中xx是MAC的最后⼀个字节。
+
+注意：使⽤CBC模式(密文分组链接)的分组加密，当设置了安全参数时，第一条记录的初始向量 (IV)将使用其他密钥和秘密来生成。后续记录的IV是上次记录的最后一个密⽂分组。
+
 ### 密钥计算
+记录协议需要一个算法来根据握手协议提供的安全参数生成密钥、初始向量和MAC密钥。
+
+主密钥被散列成一系列安全的字节，它被指派给当前状态所需的MAC密钥、密钥和禁止出口的初始向量（见附录A.6）。加密规范需要一个客户端写MAC密钥、一个服务端写MAC密钥、一个客户端写密钥、一个服务端写密钥、一个客户端写初始向量和一个服务端写初始向量，这些都通过主密钥按序生成，未用到的值会是空的。
+
+当生成密钥和MAC密钥时，主密钥被当作熵源，随机数为可供出口的加密规范提供加盐操作和初始向量。
+
+为了产生这些密钥，通过如下计算
+```c
+key_block = PRF(SecurityParameters.master_secret,
+                "key expansion",
+                SecurityParameters.server_random +
+                SecurityParameters.client_random);
+```
+直到足够的输出产生。`key_block`将被按如下分割。
+```c
+       client_write_MAC_secret[SecurityParameters.hash_size]
+       server_write_MAC_secret[SecurityParameters.hash_size]
+       client_write_key[SecurityParameters.key_material_length]
+       server_write_key[SecurityParameters.key_material_length]
+       client_write_IV[SecurityParameters.IV_size]
+       server_write_IV[SecurityParameters.IV_size]
+```
+客户端写初始向量和服务端写初始向量仅对非出口分组加密算法产生，对于可出口的分组加密算法，初始向量将在后面产生，多余的`key_block`都会直接清除。
+
+实现注意：
+	在本⽂档中定义的加密规范需要最多信息的是3DES_EDE_CBC_SHA；它需要2 x 24字节的密钥，2 x 20字节的MAC secrets和2 x 8字节的IV，总共104个字节的密钥。
+	
+
 #### 出口密钥生成示例
+TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5分别需要5个随机的字节给两个加密密钥，MAC密钥则需要16个字节，总共需要42个字节的数据。PRF的输出保存在`key_block`。`key_block`会被分割，并且写密钥会被加盐，因为这是可出口的加密算法。
+```c
+key_block                         = PRF(master_secret,
+                        "key expansion",
+                        server_random +
+                        client_random)[0..41]
+client_write_MAC_secret  = key_block[0..15]
+server_write_MAC_secret = key_block[16..31]
+client_write_key                = key_block[32..36]
+server_write_key               = key_block[37..41]
+```
+```c
+final_client_write_key  = PRF(client_write_key,
+                      "client write key",
+                      client_random +
+                      server_random)[0..15]
+final_server_write_key  = PRF(server_write_key,
+                      "server write key",
+                      client_random +
+                      server_random)[0..15]
+iv_block                        = PRF("", "IV block", client_random +
+                      server_random)[0..15]
+client_write_IV = iv_block[0..7]
+server_write_IV = iv_block[8..15]
+```
+
 ## TLS握手协议
+TLS握手协议由三个子协议组成，他们用来使两端协商出用于记录层的安全参数，验证身份，实例化安全参数，并向对方报告发生的错误。
+
+握手协议用来协商一个会话，它由一下内容组成：
+会话标识session identifier
+	由服务器器选择的用于标识活动或可恢复的会话状态的任意字节序列列。
+
+对等证书peer certificate
+	实体的X509v3证书。会话状态的该参数可能为null。
+	
+压缩方式compression method
+	该算法用来在加密之前压缩数据。
+	
+加密规范Cipher spec
+	指定批量加密算法（例如null，DES等）和MAC算法（如MD5或SHA）。它同样定义了加密的属性，例如`hash_size`。（见附录A.6正式的定义）
+	
+主密钥master secret
+	48字节的密钥，服务端和客户端共享。
+	
+是否可恢复 is resumable
+	一个标志表示该会话是否可以发起新的会话。
+	
+这些项用于创建安全参数，以便在保护应用程序数据时由记录层使用。通过TLS握⼿手协议的恢复功 能，可以使用相同的会话来实例化许多连接。
+
 ### 密码规格变更协议
+密码规格变更协议用于标志密码规格策略的改变。该协议由一条消息组成，该消息按照当前连接状态进行压缩和加密。消息由值为1的一个字节组成。
+```c
+struct {
+	 enum { change_cipher_spec(1), (255) } type;
+	 } ChangeCipherSpec;
+```
+客户端和服务端都会发送密码规格变更消息来告知接受端接下来的记录将会使用新协商的加密规格和密钥进行保护。接收到该消息后接受端将会引导记录层复制 读待处理状态到 读当前状态。发送该消息后，发送端将引导记录层将 写待处理状态 到 写活动状态。（见6.1）密码规格变更消息发送在握手阶段，在安全参数被认可之后，但在验证完成消息发送之前（见7.4.9）。
+
 ### 报警协议
+TLS记录层支持的另一种内容是报警类型。报警消息传达消息的严重性和警报的描述。报警消息中一 连串致命的问题会立即终止连接。在这种情况下，与会话相对应的其他连接可能会继续，但会话标识符必须⽆效，从而阻⽌失败的会话被用于建立新的连接。像其他消息⼀一样，报警消息被加密和压缩，如当前连接状态所指定的规范。
+```c
+enum { warning(1), fatal(2), (255) } AlertLevel;
+
+enum {
+    close_notify(0),
+    unexpected_message(10),
+    bad_record_mac(20),
+    decryption_failed(21),
+    record_overflow(22),
+    decompression_failure(30),
+    handshake_failure(40),
+    bad_certificate(42),
+    unsupported_certificate(43),
+    certificate_revoked(44),
+    certificate_expired(45),
+    certificate_unknown(46),
+    illegal_parameter(47),
+    unknown_ca(48),
+    access_denied(49),
+    decode_error(50),
+    decrypt_error(51),
+    export_restriction(60),
+    protocol_version(70),
+    insufficient_security(71),
+    internal_error(80),
+    user_canceled(90),
+    no_renegotiation(100),
+    (255)
+} AlertDescription;
+struct {
+   AlertLevel level;
+   AlertDescription description;
+} Alert;
+```
 #### 关闭报警
+客户端和服务端都必须共享服务终止的信息以避免截断攻击。任一方都可以启动关闭消息的交换。
+
+close_notify
+此消息告知接受者发送方将不会在此连接上发送更多的消息。如果连接被断开而没有与警告相应级别的`close_notify`消息，该会话将不可复用。
+
+任一方都可以通过发送`close_notify`警报来关闭连接，在关闭警报后收到的消息都会被忽略。
+
+任一方在连接的写入侧关闭之前都要发送一个`close_alert`警报。它要求对端以自己的`close_alert`作出响应并立即关闭连接，丢弃后续的写入数据。在关闭连接的读一侧之前，关闭的发起反不需要等待`close_notify`警报的回应。
+
+如果使用TLS的应用程序协议规定，在TLS连接关闭后，任何数据都可能通过底层传输进行传输，则TLS的实现必须在向应用层指示TLS连接已结束之前收到响应的`close_notify`警报。如果应用协议不会传输任何额外数据，但只会关闭底层传输连接，则TLS的实现可能会选择关闭传输，⽽不必等待响应的`close_notify`。不应采用本标准的任何部分来规定TLS管理理其数据传输的配置文件的使用方式，包括何时打开或关闭连接。
+
+注意：假定在注销传输之前关闭一条连接可以可靠的传送挂起的数据。
+
 #### 错误报警
+TLS握手协议中的错误处理十分简单。当检测到一个错误，检测方发送一个消息到另一方。在传输完或接收到一个严重的警报消息后，两方都将立即关闭连接。服务端和客户端都将移除任何与失败的连接有关的会话标识、密钥和秘密数据。有如下的错误警报被定义：
+
+unexpected_message
+	收到一条不合适的消息。这种警报都是严重的，在正确实现的通信中不应该被观测到。
+
+bad_record_mac
+	如果一条记录的MAC不正确就会返回这样的警报。这条消息也是严重的。
+	
+decryption_failed
+	一个`TLSCiphertext`	以无效的方式解密：当检查时，它不是分组长度或填充值的整数倍。这条消息也是严重的。
+	
+record_overflow
+	一个`TLSCiphertext`记录的长度超过2^14+2048，或被解压后的`TLSCompressed`记录的长度超过2^14+1024。这个警报也是严重的。
+	
+decompression_failure
+	解压函数接受到不合理的输入。这条警报也是严重的。
+	
+handshark_failure
+	接收到`handshark_failure`警报消息意味着发送方无法在给定选项内协商出可接受的一系列安全参数。这也是严重的。
+	
+bad_certificate
+	证书出错，包含的签名无法正确的验证，等。
+	
+unsupported_certificate
+	证书是不被支持的类型。
+	
+certificate_revoke
+	证书被签发者吊销。
+	
+certificate_expired
+	证书过期或不再有效。
+	
+certificate_unknown
+	在处理证书时的其他问题，导致证书不可被接受。
+	
+illegal_parameter
+	握手中的某个字段超出范围或与其他字段不匹配，这也是严重的警报。
+	
+unknown_ca
+	收到有效的证书链或部分链，但该证书不可被接受，由于CA的证书无法找到或不能与已知的可信的CA匹配。这个警报是严重的。
+	
+access_denied
+	收到有效的证书，但当应用访问控制时，发送方决定不再协商。这个警报也是严重的。
+	
+decode_error
+	消息无法被解码，由于一些字段超出范围或消息的长度不正确。这是严重的。
+	
+decrypt_error
+	握手中的解密操作失败。包括不能验证签名，解密交换的密钥，或验证已完成的消息。
+	
+export_restriction
+	一个不遵循出口管制的协商被检测到；例如，试图在`RSA_EXPORT`握手方法中传输一个1024比特的临时RSA密钥。这也是严重的警报。
+	
+protocol_version
+	尝试进行协商的客户端的协议版本可以被识别，但不被支持。（例如，由于安全性考虑旧的版本被忽略）。这也是严重的警报。
+	
+insufficient_security
+	由于服务端要求更安全的加密方式，但客户端不支持，协商会失败，但不是返回`handshake_failure`。这种警报也是严重的。
+	
+internal_error
+	与对端无关的内部错误或由于协议的正确性导致无法继续（例如内存分配失败）。这也是严重的。
+	
+user_canceled
+	与协议无关的一些原因导致握手被取消。如果用户在握手完成后取消了一个操作，通过发送`close_notify`消息来关闭连接更为合适。这条警报后应该跟着一个`close_notify`。。这条消息会产生一个警告。
+	
+no_renegotiation
+	在初始化握手后由客户端发送的响应一个`hello`请求或服务端发送的响应客户端的`hello`消息。这两个一般都会导致重新协商；当重新协商不合适时，接受端应该以此警报作为响应；此时，原请求方可以决定是否继续连接。一种合适的情况是服务端已经有一个满足请求的进程；这个进程可以在启动时接收安全参数（密钥长度， 身份验证等），并且在这之后难以通知参数的改变。这个消息是一个警告。
+	
+对于没有明确指定警报级别的所有错误，发送方可以⾃行决定是否是严重错误; 如果接收到警告级别的警报， 接收⽅可以决定是否将其视为严重错误。 然而，所有以严重级别传输的消息必须被视为严重消息。
+
 ### 握手协议总览
 ### 握手协议
 #### Hello消息
