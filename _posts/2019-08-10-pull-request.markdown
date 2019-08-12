@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "第一次pull-request"
+title:      "第一次Pull-request"
 subtitle:   "代码笔记第九话"
 date:       2019-08-10
 author:     "XiaoYu"

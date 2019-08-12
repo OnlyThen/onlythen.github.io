@@ -1,5 +1,5 @@
 ## Welcome to octopus's Blog
-![my photo](http://oqa5o9dlv.bkt.clouddn.com/IMG_0133.jpg)
+![my photo](/img/Earth Horizon.jpg)
 这是我的博客的 `V1.0.0` 版本。采用别人的模版，看起来还不错。
 
 ### 先写自己创建个人博客的原因 :)
