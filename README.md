@@ -1,5 +1,5 @@
-## Welcome to octopus's Blog
-![my photo](/img/Earth Horizon.jpg)
+## Welcome to Octopus's Blog
+![](https://b2.bmp.ovh/imgs/2019/08/ac224da90c2d1dfa.jpg)
 这是我的博客的 `V1.0.0` 版本。采用别人的模版，看起来还不错。
 
 ### 先写自己创建个人博客的原因 :)
