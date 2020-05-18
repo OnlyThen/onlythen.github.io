@@ -12,11 +12,11 @@ tags:
     - Code
 ---
 
-> 近日突然发现各种排序算法不甚明了，而且各种时间复杂度的分析也不知其解，在此详细作个总结。
+> 近日突然发现各种排序算法不甚明了，而且各种时间复杂度的分析也不知其解，在此详细作个总结，默认非递减排序。
 
 ## 导论
 
-排序实际上就是对一系列数据集的重新排列的操作，且在计算机内都是按照数值的大小来递增或递减排列，为了对数据执行更快的查询，有必要对数据进行排序。在网上看到一人的总结，觉得分的很好，于是采用他的分类方式:<https://www.cnblogs.com/onepixel/articles/7674659.html>。即分为非线性时间比较类排序和线性时间非比较类排序，下图是比较。
+排序实际上就是对一系列数据集的重新排列的操作，且在计算机内都是按照数值的大小来递增或递减排列，为了对数据执行更快的查询，有必要对数据进行排序。在网上看到一人的总结，觉得划分的很好，于是采用他的分类方式:<https://www.cnblogs.com/onepixel/articles/7674659.html>。即分为非线性时间比较类排序和线性时间非比较类排序，下图是比较。
 ![](/img/in_post/sort.jpeg)
 
 ---
@@ -29,7 +29,7 @@ tags:
 
 插入排序即在一个已有序数列中插入一个新的值，工作原理则是从后向前依次比较，找到相应的位置。步骤如下
 
-1. 取第一个元素为第一次的已排序数列
+1. 取第一个元素为初始的已排序数列，从第二个元素开始排序
 2. 取下一个元素为待排数值，从后向前与已排序数列进行比较
 3. 如果数列中的数大于待排数值，则将该数向后移一位
 4. 重复第三步操作，直到找到数列中某个数小于或等于待排数值
@@ -37,25 +37,23 @@ tags:
 6. 重复步骤2——5
 
 
-### C语言实现
+### C++实现
 
-```
-void insertionSort(int arr[], int length) {
-
+```C++
+void insertionSort(vector<int>& nums) {
+    unsigned long = nums.size();
     int preIndex, current;    
-    for (var i = 1; i < length; i++) {        
+    for (int i = 1; i < length; i += 1) {        
         preIndex = i - 1;        
-        current = arr[i];        
-        while (preIndex >= 0 && arr[preIndex] > current) {            
-            arr[preIndex + 1] = arr[preIndex];            
-            preIndex--;        
-        }        
-        arr[preIndex + 1] = current;    
-    }    
-    
+        current = nums[i];        
+        while (preIndex >= 0 && nums[preIndex] > current) {            
+            nums[preIndex + 1] = nums[preIndex];            
+            preInde -= 1;        
+        }
+        nums[preIndex + 1] = current;
+    }
 }
 ```
-
 
 ### 复杂度分析
 
@@ -73,42 +71,52 @@ void insertionSort(int arr[], int length) {
 
 希尔排序是一种插入排序，1959年由Donald Shell[提出](http://penguin.ewu.edu/cscd300/Topic/AdvSorting/p30-shell.pdf)，又被称为缩小增量排序（Diminishing Increment Sort）,主要优化了直接插入排序每次只能移动一位的缺陷。步骤如下：
 
-1. 先选择一个递减的增量序列：D1 D2 ... Dk=1，一般取D1=n/2
+1. 先选择一个递减的增量序列：D1 D2 ... Dk = 1，一般取D1 = n/2
 2. 依次将序列中距离为D1的数放在同一组，对每一组进行直接插入排序
 3. 再将距离为D2的数放在一组，进行直接插入排序
 4. 直到取到Dk=1
 
 希尔排序的核心是增量序列的选择，不同的序列会导致不同的时间复杂度。
 
-### C语言实现
-采用hibbard增量序列，时间复杂度是O(n^1.5)
+### C++实现
 
-```
-void shellSort(int arr[], int length) {
-    
-    int i, j, temp, gap=1;
-    while (gap < length/4) {
-        gap = gap * 2+1;
+> 采用hibbard增量序列，最坏时间复杂度是O(n^1.5)，平均时间复杂度约为O(n^1.25)
+
+Hibbard 增量序列的通项公式为：
+![](http://latex.codecogs.com/gif.latex?\h_i=2^i-1)
+
+Hibbard 增量序列的递推公式为：
+![](http://latex.codecogs.com/gif.latex?\h_1=1, h_i=2*h_{i-1}+1)
+
+```C++
+void shellSort(vector<int>& nums) {
+    unsigned long length = nums.size();
+    int h = 1;
+    while (h < length/2) {
+        h = 2*h + 1;
     }
-    for (gap; gap > 0; gap = (gap-1)/2) {
-        for (i = gap; i < length; i += 1) {
-            temp = arr[i];
-            for (j = i-gap; j > 0 && arr[j] > temp; j -= gap ) {
-                arr[j+gap] = arr[j];
+    cout << h << endl;
+    while (h >= 1) {
+        for (int i = h; i < length; i += 1) {
+            //Insertion sort
+            int temp = nums[i];
+            int j;
+            for (j = i; j >= h && temp < nums[j-h]; j -= h) {
+                nums[j] = nums[j-h];
             }
-            arr[j+gap] = temp;
+            nums[j] = temp;
         }
+        h /= 2;
     }
 }
 ```
 
-
 ### 复杂度分析
 
 同样，使用了辅助空间来保存要比较的数，空间复杂度是O(1);下面主要分析hibbard增量的最坏时间复杂度。
-hibbard序列是在1963年提出，文献为《An Empirical Study of Minimal Storage Sorting》，其时间复杂度由Papernov 和Stasevich在1965年证明，论文内容是不认识的语言，其主要内容如下
+hibbard序列是在1963年提出，文献为*An Empirical Study of Minimal Storage Sorting*，其时间复杂度由Papernov 和Stasevich在1965年证明，论文内容是不认识的语言，其主要内容如下
 ![](/img/in_post/proof.jpeg)
-而在论文On the average-case complexity of Shellsort中给出了通用分析。
+而在论文*On the average-case complexity of Shellsort*中给出了通用分析。
 
 ### 稳定性分析
 
@@ -122,23 +130,27 @@ hibbard序列是在1963年提出，文献为《An Empirical Study of Minimal Sto
 
 选择排序很容易想到，即每次选择未排序序列中最大的值放在已排序序列的最右边，以此排序完成。
 
-### C语言实现
+1. 在未排序序列中找到最小元素，存放到排序序列的起始位置。
+2. 从剩余未排序元素中继续寻找最小元素，然后放到已排序序列的末尾。
+3. 重复第二步，直到所有元素均排序完毕。
 
-```
-void selectSort(int A[], int n) {
-    register int i,j,min,m;
-    for(i=0; i<n-1; i++) {
-        min=i;
-        for(j=i+1; j<n; j++) {
-            if(A[min] > A[j]) {
-                min=j;
-            }
-        }
-        if(min != i) {
-            swap(&A[min],&A[i]);
-                
-        }
-    }
+### C++实现
+
+```C++
+void selectionSort(vector<int>& nums) {
+    unsigned long length = nums.size();
+    int min = 0;
+    for (int i = 0; i < length-1; i += 1) {
+        min = i;
+        for (int j = i+1; j < length; j += 1) {
+            if (nums[j] < nums[min]) {
+                min = j;
+            }
+        }
+        if (min != i) {
+            swap(nums[i], nums[min]);
+        }
+    }
 }
 ```
 ### 复杂度分析
@@ -165,45 +177,44 @@ void selectSort(int A[], int n) {
 3. 将头元素与尾元素交换，即将最大数提出
 4. 重复2、3步，直到完成排序
 
-### C语言实现
+### C++实现
 
-```
-void adjustHeap(int param1, int j, int inNums[]) {
-    int temp = inNums[param1];
-    for (int k = param1*2+1; k<j; k=k*2+1) {
-        //如果右边值大于左边值，指向右边
-        if (k+1<j && inNums[k] < inNums[k+1]) {
-            k++;
-        }
-        //如果子节点大于父节点，将子节点值赋给父节点,并以新的子节点作为父节点（不用进行交换）
-        if (inNums[k]>temp) {
-            inNums[param1] = inNums[k];
-            param1 = k;
-        } else {
-            break;
-        }
-    }
-     
-    inNums[param1] = temp;
+```C++
+void adjustHeap(unsigned long i, unsigned long length, vector<int>& nums) {
+    cout << i << endl;
+    int temp = nums[i];
+    // k为i的左孩子
+    for (unsigned long k = i*2+1; k < length; k = k*2+1) {
+        //k+1为i的右孩子，如果右边值大于左边值，指向右边
+        if ((k+1 < length) && (nums[k] < nums[k+1])) {
+            k = k + 1;
+        }
+        //如果子节点大于父节点，将子节点值赋给父节点,并以新的子节点作为父节点（不用进行交换）
+        if (nums[k] > temp) {
+            nums[i] = nums[k];
+            i = k;
+        } else {
+            break;
+        }
+    }
+    nums[i] = temp;
 }
 
-void HeapSort(int nums, int inNums[]) {
-    //1.构建大顶堆
-    for (int i = nums/2-1; i >= 0; i--)
-    {
-                //put the value in the final position
-        adjustHeap(i, nums, inNums);
-    }
-    //2.调整堆结构+交换堆顶元素与末尾元素
-    for (int j = nums-1; j>0; j--)
-    {
-                //堆顶元素和末尾元素进行交换
-        int temp = inNums[0];
-        inNums[0] = inNums[j];
-        inNums[j] = temp;
- 
-        adjustHeap(0, j, inNums);//重新对堆进行调整
-    }
+void heapSort(vector<int>& nums) {
+    unsigned long length = nums.size();
+    //1.构建大顶堆
+    unsigned long j = 0;
+    for (int i = (int)length/2-1; i >= 0; i -= 1) {
+        adjustHeap(i, length, nums);
+    }
+    //2.调整堆结构+交换堆顶元素与末尾元素
+    for (j = length-1; j > 0; j -= 1) {
+        int temp = nums[0];
+        nums[0] = nums[j];
+        nums[j] = temp;
+        //重新对堆进行调整
+        adjustHeap(0, j, nums);
+    }
 }
 ```
 
