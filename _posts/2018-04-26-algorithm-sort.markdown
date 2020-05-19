@@ -242,22 +242,19 @@ S = 2^k -k -1 < n,因此这一部分时间复杂度为O(n)。
 
 冒泡排序思想很简单，类似于堆排序，从未排序数列的头部开始两两比较，较大的移到后面，那么一轮比较完之后最大的数就出现在序列的最后，接下来进行下一轮，直到排序完毕。
 
-### C语言实现
+### C++实现
 
-```
-void bubble_sort(int a[], int n) {
-    int i, j, temp;
-    for (j = 0; j < n - 1; j++) {
-        for (i = 0; i < n - 1 - j; i++) {
-        
-            if(a[i] > a[i + 1]) {
-            
-                temp = a[i];
-                a[i] = a[i + 1];
-                a[i + 1] = temp;
-            }
-        }
-     }
+```C++
+void bubbleSort(vector<int>& nums) {
+    unsigned long length = nums.size();
+    int i, j;
+    for (j = 0; j < length-1; j += 1) {
+        for (i = 0; i < length-1-j; i += 1) {
+            if (nums[i] > nums[i+1]) {
+                swap(nums[i], nums[i+1]);
+            }
+        }
+    }
 }
 ```
 
@@ -282,49 +279,32 @@ void bubble_sort(int a[], int n) {
 2. 以第一个数组元素作为关键数据，赋值给key，即key=A[0]；
 3. 从j开始向前搜索，即由后开始向前搜索(j--)，找到第一个小于key的值A[j]，将A[j]和A[i]互换；
 4. 从i开始向后搜索，即由前开始向后搜索(i++)，找到第一个大于key的A[i]，将A[i]和A[j]互换；
-5. 重复第3、4步，直到i=j； (3,4步中，没找到符合条件的值，即3中A[j]不小于key,4中A[i]不大于key的时候改变j、i的值，使得j=j-1，i=i+1，直至找到为止。找到符合条件的值，进行交换的时候i， j指针位置不变。另外，i==j这一过程一定正好是i+或j-完成的时候，此时令循环结束）。
+5. 重复第3、4步，直到i=j； (3,4步中，没找到符合条件的值，即3中A[j]不小于key,4中A[i]不大于key的时候改变j、i的值，使得j=j-1，i=i+1，直至找到为止。找到符合条件的值，进行交换的时候i， j指针位置不变。另外，i==j这一过程一定正好是i+或j-完成的时候，此时循环结束）。
 
-### C语言实现
-```
-void sort(int *a, int left, int right)
-{
-    if(left >= right)/*如果左边索引大于或者等于右边的索引就代表已经整理完成一个组了*/
-    {
-        return ;
-    }
-    int i = left;
-    int j = right;
-    int key = a[left];
-     
-    while(i < j)                               /*控制在当组内寻找一遍*/
-    {
-        while(i < j && key <= a[j])
-        /*而寻找结束的条件就是，1，找到一个小于或者大于key的数（大于或小于取决于你想升
-        序还是降序）2，没有符合条件1的，并且i与j的大小没有反转*/ 
-        {
-            j--;/*向前寻找*/
-        }
-         
-        a[i] = a[j];
-        /*找到一个这样的数后就把它赋给前面的被拿走的i的值（如果第一次循环且key是
-        a[left]，那么就是给key）*/
-         
-        while(i < j && key >= a[i])
-        /*这是i在当组内向前寻找，同上，不过注意与key的大小关系停止循环和上面相反，
-        因为排序思想是把数往两边扔，所以左右两边的数大小与key的关系相反*/
-        {
-            i++;
-        }
-         
-        a[j] = a[i];
-    }
-     
-    a[i] = key;/*当在当组内找完一遍以后就把中间数key回归*/
-    sort(a, left, i - 1);/*最后用同样的方式对分出来的左边的小组进行同上的做法*/
-    sort(a, i + 1, right);/*用同样的方式对分出来的右边的小组进行同上的做法*/
-                       /*当然最后可能会出现很多分左右，直到每一组的i = j 为止*/
-}
-```
+### C++实现
+
+```C++
+void quickSort(vector<int>& nums, int left, int right) {
+    if (left >= right) {
+        return;
+    }
+    int i = left, j = right, key = nums[left];
+    
+    while (i < j) {
+        while (i < j && key <= nums[j]) {
+            j -= 1;
+        }
+        nums[i] = nums[j];
+        
+        while (i < j && key >= nums[i]) {
+            i += 1;
+        }
+        nums[j] = nums[i];
+    }
+    nums[i] = key;
+    quickSort(nums, left, i-1);
+    quickSort(nums, i+1, right);
+}```
 ### 复杂度分析
 
 其平均时间复杂度在的分析主要依赖于离散数学中的*Master Theorem*
@@ -345,35 +325,45 @@ void sort(int *a, int left, int right)
 2. 设定两个指针，最初位置分别为两个已经排序序列的起始位置；
 3. 比较两个指针所指向的元素，选择相对小的元素放入到合并空间，并移动指针到下一位置，重复步骤3直到某一指针超出序列尾，将另一序列剩下的所有元素直接复制到合并序列尾
 
-### C语言实现
+### C++实现
 
-```
-void Merge(int sourceArr[],int tempArr[], int startIndex, int midIndex, int endIndex) {
-    int i = startIndex, j=midIndex+1, k = startIndex;
-    while(i!=midIndex+1 && j!=endIndex+1) {
-        if(sourceArr[i] > sourceArr[j])
-            tempArr[k++] = sourceArr[j++];
-        else
-            tempArr[k++] = sourceArr[i++];
-    }
-    while(i != midIndex+1)
-        tempArr[k++] = sourceArr[i++];
-    while(j != endIndex+1)
-        tempArr[k++] = sourceArr[j++];
-    for(i=startIndex; i<=endIndex; i++)
-        sourceArr[i] = tempArr[i];
+```C++
+void merge(vector<int>& nums, vector<int>& temp, int startIndex, int midIndex, int endIndex) {
+    int i = startIndex, j = midIndex+1, k = startIndex;
+    while (i != midIndex+1 && j != endIndex+1) {
+        if (nums[i] > nums[j]) {
+            temp[k] = nums[j];
+            k += 1;
+            j += 1;
+        } else {
+            temp[k] = nums[i];
+            k += 1;
+            i += 1;
+        }
+    }
+    while (i != midIndex+1) {
+        temp[k] = nums[i];
+        k += 1;
+        i += 1;
+    }
+    while (j != endIndex+1) {
+        temp[k] = nums[j];
+        k += 1;
+        j += 1;
+    }
+    for (i = startIndex; i <= endIndex; i += 1) {
+        nums[i] = temp[i];
+    }
 }
- 
-//内部使用递归
-void MergeSort(int sourceArr[], int tempArr[], int startIndex, int endIndex) {
-    int midIndex;
-    if(startIndex < endIndex) {
-    
-        midIndex = (startIndex + endIndex) / 2;
-        MergeSort(sourceArr, tempArr, startIndex, midIndex);
-        MergeSort(sourceArr, tempArr, midIndex+1, endIndex);
-        Merge(sourceArr, tempArr, startIndex, midIndex, endIndex);
-    }
+
+void mergeSort(vector<int>& nums, vector<int>& temp, int startIndex, int endIndex) {
+    int midIndex;
+    if (startIndex < endIndex) {
+        midIndex = (startIndex + endIndex) / 2;
+        mergeSort(nums, temp, startIndex, midIndex);
+        mergeSort(nums, temp, midIndex+1, endIndex);
+        merge(nums, temp, startIndex, midIndex, endIndex);
+    }
 }
 ```
 
@@ -393,53 +383,58 @@ void MergeSort(int sourceArr[], int tempArr[], int startIndex, int endIn
 
 ### 定义
 
-该算法于1954年由 Harold H. Seward 提出。 它是一个不需要比较的，类似于桶排序的线性时间排序算法。该算法是对已知数量范围的数组进行排序。其时间复杂度为O(n)，适用于小范围集合的排序。计数排序是用来排序0到100之间的数字的最好的算法。当然这是一种牺牲空间换取时间的做法。步骤如下
+该算法于1954年由*Harold H. Seward*提出。 它是一个不需要比较的，类似于桶排序的线性时间排序算法。该算法是对已知数量范围的数组进行排序。其时间复杂度为O(n)，适用于小范围集合的排序。计数排序是用来排序0到100之间的数字的最好的算法。当然这是一种牺牲空间换取时间的做法。步骤如下
 
-1. 找出待排序的数组中最大和最小的元素；
-2. 统计数组中每个值为i的元素出现的次数，存入数组C的第i项；
-3. 对所有的计数累加（从C中的第一个元素开始，每一项和前一项相加）
-4. 反向填充目标数组：将每个元素i放在新数组的第C(i)项，每放一个元素就将C(i)减去1。
+1. 找出待排序的数组中最大和最小的元素，创建大小为max-min+1的辅助数组*tmp*；
+2. 遍历待排序数组，统计每个元素num出现的次数，存入数组*tmp*的第`num-min`项；
+3. 对所有的计数累加（从*tmp*中的第一个元素开始，每一项和前一项相加，此步是为了保证辅助数组存储的元素值等于相应整数的最终排序位置
+4. 反向填充目标数组：将每个元素i放在新数组的第tmp[i]项，每放一个元素就将tmp[i]减去1。
 
-### C语言实现
+### C++实现
 
-```
-void CountSort(int data[],int n)
-{
-    int i, j, count, * data_p;
-    data_p = (int*)malloc(sizeof(int)*n);
-    for(i=0; i<n; i++)//初始化data_p
-        data_p[i]=0;
-    for(i=0; i<n; i++)
-    {
-        count=0;
-        for(j=0;j<n;j++)//扫描待排序数组
-            if(data[j]<data[i])//统计比data[i]值小的值的个数
-                count++;
-        if(data_p[count]!=0)//对于相等非0的数据，应向后措一位。数据为0时，因数组data_p被初始化为0，故不受影响。
-            count++;
-        data_p[count]=data[i];//存放到data_p中的对应位置
-    }
-        //用于检查当有多个数相同时的情况
-    i=0,j=n;
-    while(i<j)
-        {
-        if(data_p[i]==0) {
-                
-            temp=i-1;
-            data_p[i]=data_p[temp];
-        }//of if
-        i++;
-    }//of  while
-    for(i=0;i<n;i++)//把排序完的数据复制到data中
-        data[i]=data_p[i];
-    free(data_p);//释放data_p
+```C++
+void countSort1(vector<int>& nums) {
+    int max = *max_element(nums.begin(), nums.end());
+    int min = *min_element(nums.begin(), nums.end());
+    vector<int> tmp(max-min+1);
+    for (auto n : nums) {
+        tmp[n+min] += 1;
+    }
+    int j = 0;
+    for (int i = 0; i < max-min+1; i += 1) {
+        int count = tmp[i];
+        while (count > 0) {
+            nums[j] = i;
+            count -= 1;
+            j += 1;
+        }
+    }
+}
+
+void countSort2(vector<int>& nums, vector<int>& re) {
+    int max = *max_element(nums.begin(), nums.end());
+    int min = *min_element(nums.begin(), nums.end());
+    vector<int> tmp(max-min+1);
+    for (auto n : nums) {
+        tmp[n-min] += 1;
+    }
+    int sum = 0;
+    for (int i = 0; i < max-min+1; i += 1) {
+        sum += tmp[i];
+        tmp[i] = sum;
+    }
+    
+    for (int i = (int)nums.size()-1; i >= 0; i -= 1) {
+        re[tmp[nums[i]-min]-1] = nums[i];
+        tmp[nums[i]-min] -= 1;
+    }
 }
 ```
 
 ### 复杂度分析
 
-由于需要外部数组保存数据，因此空间复杂度为O(n+k)，k是序列的最大值。
-这种方式需要的时间为O(n+k)。
+由于需要外部数组保存数据，因此空间复杂度为O(n+k)，k是序列的最大值最小值差值。
+这种方式的时间复杂度为O(n+k)。
 
 ### 稳定性分析
 
@@ -451,37 +446,35 @@ void CountSort(int data[],int n)
 
 ### 定义
 
-桶排序是对计数排序的改进，同样适用于数值范围小，序列数列大的情况。步骤如下：
+桶排序是对计数排序的改进，计数排序申请的额外空间跨度从最小元素值到最大元素值，若待排序集合中元素不是依次递增的，则必然有空间浪费情况。桶排序则是弱化了这种浪费情况，将最小值到最大值之间的每一个位置申请空间，更新为最小值到最大值之间每一个固定区域申请空间，尽量减少了元素值大小不连续情况下的空间浪费情况。同样适用于数值范围小，序列数列大的情况。步骤如下：
 
 1. 申请一定数量的桶；
 2. 按照一个设定好的映射函数，将序列里面的元素映射到对应的桶里，如按照数的十位数；
 3. 遍历一遍所有的桶，将各个桶内的元素进行排序，排序算法可以采用冒泡排序，插入排序，快速排序，归并排序等等适合的算法；
 4. 将所有桶内的元素按照顺序组合起来就是我们需要的有序序列。
 
-### C语言实现
-```
-	1	void BucketSort(int* arr , int len)  
-	2	{  
-	3	    int tmpArrLen = GetMaxVal(arr , len) + 1;  //取数据最大值
-	4	    int tmpArr[tmpArrLen];  //获得空桶大小  
-	5	    int i, j;  
-	6	      
-	7	    for( i = 0; i < tmpArrLen; i++)  //空桶初始化  
-	8	        tmpArr[i] = 0;  
-	9	      
-	10	    for(i = 0; i < len; i++)   //寻访序列，并且把项目一个一个放到对应的桶子去。  
-	11	        tmpArr[ arr[i] ]++;  
-	12	      
-	13	    for(i = 0, j = 0; i < tmpArrLen; i ++)  
-	14	    {  
-	15	        while( tmpArr[ i ] != 0) //对每个不是空的桶子进行排序。  
-	16	        {  
-	17	            arr[j ] = i;  //从不是空的桶子里把项目再放回原来的序列中。  
-	18	            j++;  
-	19	            tmpArr[i]--;  
-	20	        }  
-	21	    }  
-	22	}  
+### C++实现
+
+```C++
+void bucketSort(vector<int>& nums, vector<int>& re) {
+    int max = *max_element(nums.begin(), nums.end());
+    int min = *min_element(nums.begin(), nums.end());
+    int counts = max/10 - min/10 + 1;
+    vector<vector<int>> buckets;
+    while (counts > 0) {
+        buckets.push_back({});
+        counts -= 1;
+    }
+    cout << buckets.size() << endl;
+    for (auto n : nums) {
+        int index = n/10 - min/10;
+        buckets[index].push_back(n);
+    }
+    for (auto bucket : buckets) {
+        quickSort(bucket, 0, (int)bucket.size());
+        re.insert(re.end(), bucket.begin(), bucket.end());
+    }
+}
 ```
 
 ### 复杂度分析
@@ -499,98 +492,68 @@ void CountSort(int data[],int n)
 
 ### 定义
 
-它是透过键值的部分信息，将要排序的元素分配至某些“桶”中，藉以达到排序的作用，它有两种方法：最高位优先(Most Significant Digit first)法，简称MSD法：先按k1排序分组，同一组中记录，关键码k1相等，再对各组按k2排序分成子组，之后，对后面的关键码继续这样的排序分组，直到按最次位关键码kd对各子组排序后。再将各组连接起来，便得到一个有序序列。
+是桶排序的扩展，它是透过键值的部分信息，将要排序的元素分配至某些“桶”中，以达到排序的作用，它有两种方法：最高位优先(Most Significant Digit first)法，简称MSD法：先按k1排序分组，同一组中记录，关键码k1相等，再对各组按k2排序分成子组，之后，对后面的关键码继续这样的排序分组，直到按最次位关键码kd对各子组排序后。再将各组连接起来，便得到一个有序序列。
 最低位优先(Least Significant Digit first)法，简称LSD法：先从kd开始排序，再对kd-1进行排序，依次重复，直到对k1排序后便得到一个有序序列。
 
-### C语言实现
+### C++实现
 
-```
-voidbucketSort3(int *p, intn)
-{
-    //获取数组中的最大数
-    intmaxNum = findMaxNum(p, n);
-    //获取最大数的位数，次数也是再分配的次数。
-    intloopTimes = getLoopTimes(maxNum);
-    inti;
-    //对每一位进行桶分配
-    for(i = 1; i <= loopTimes; i++)
-    {
-        sort2(p, n, i);
-    }
+```C++
+void countSort3(vector<int>& nums, int exp) {
+    vector<int> tmp(10);
+    vector<int> re(nums.size());
+    for (auto n : nums) {
+        tmp[(n/exp)%10] += 1;
+    }
+    int sum = 0;
+    for (int i = 0; i < 10; i += 1) {
+        sum += tmp[i];
+        tmp[i] = sum;
+    }
+    
+    for (int i = (int)nums.size()-1; i >= 0; i -= 1) {
+        re[tmp[(nums[i]/exp)%10]-1] = nums[i];
+        tmp[(nums[i]/exp)%10] -= 1;
+    }
+    for (int i = 0; i < nums.size(); i += 1) {
+        nums[i] = re[i];
+    }
 }
-//获取数字的位数
-intgetLoopTimes(intnum)
-{
-    intcount = 1;
-    inttemp = num / 10;
-    while(temp != 0)
-    {
-        count++;
-        temp = temp / 10;
-    }
-    returncount;
-}
-//查询数组中的最大数
-intfindMaxNum(int *p, intn)
-{
-    inti;
-    intmax = 0;
-    for(i = 0; i < n; i++)
-    {
-        if(*(p + i) > max)
-        {
-            max = *(p + i);
-        }
-    }
-    returnmax;
-}
-//将数字分配到各自的桶中，然后按照桶的顺序输出排序结果
-voidsort2(int *p, intn, intloop)
-{
-    //建立一组桶此处的20是预设的根据实际数情况修改
-    intbuckets[10][20] = {};
-    //求桶的index的除数
-    //如798个位桶index=(798/1)%10=8
-    //十位桶index=(798/10)%10=9
-    //百位桶index=(798/100)%10=7
-    //tempNum为上式中的1、10、100
-    inttempNum = (int)pow(10, loop - 1);
-    inti, j;
-    for(i = 0; i < n; i++)
-    {
-        introw_index = (*(p + i) / tempNum) % 10;
-        for(j = 0; j < 20; j++)
-        {
-            if(buckets[row_index][j] == NULL)
-            {
-                buckets[row_index][j] = *(p + i);
-                break;
-            }
-        }
-    }
-    //将桶中的数，倒回到原有数组中
-    intk = 0;
-    for(i = 0; i < 10; i++)
-    {
-        for(j = 0; j < 20; j++)
-        {
-            if(buckets[i][j] != NULL)
-            {
-                *(p + k) = buckets[i][j];
-                buckets[i][j] = NULL;
-                k++;
-            }
-        }
-    }
+
+void radixSort(vector<int>& nums) {
+    int max = *max_element(nums.begin(), nums.end());
+    for (int exp = 1; max/exp > 0; exp *= 10) {
+        countSort3(nums, exp);
+    }
 }
 ```
 
 ### 复杂度分析
 
-它在最坏情况下的时间复杂度为O(wn),w为数值的平均长度。
+它在最坏情况下的时间复杂度为O(wn), w为数值的平均长度。
 空间复杂度为O(n+k)。
 
 ### 稳定性分析
 
 同样是稳定的。
+
+## 测试案例
+
+```C++
+int main(int argc, const char * argv[]) {
+    // insert code here...
+    vector<int> num = {2, 3, 1, 7, 8, 9, 9, 6, 5, 5, 0, 0, 3, 2, 1};
+    vector<int> t = {};
+    int n;
+    while (true) {
+        cin >> n;
+        num.push_back(n);
+        if (cin.get() == '\n') {
+            break;
+        }
+    }
+    int n = (int)num.size();
+    radixSort(num); 
+    return 0;
+}
+```
 
