@@ -83,10 +83,10 @@ void insertionSort(vector<int>& nums) {
 > 采用hibbard增量序列，最坏时间复杂度是O(n^1.5)，平均时间复杂度约为O(n^1.25)
 
 Hibbard 增量序列的通项公式为：
-![](http://latex.codecogs.com/gif.latex?\h_i=2^i-1)
+![](http://latex.codecogs.com/gif.latex?h_i=2^i-1)
 
 Hibbard 增量序列的递推公式为：
-![](http://latex.codecogs.com/gif.latex?\h_1=1, h_i=2*h_{i-1}+1)
+![](http://latex.codecogs.com/gif.latex?h_1=1, h_i=2*h_{i-1}+1)
 
 ```C++
 void shellSort(vector<int>& nums) {
@@ -304,7 +304,9 @@ void quickSort(vector<int>& nums, int left, int right) {
     nums[i] = key;
     quickSort(nums, left, i-1);
     quickSort(nums, i+1, right);
-}```
+}
+```
+
 ### 复杂度分析
 
 其平均时间复杂度在的分析主要依赖于离散数学中的*Master Theorem*
